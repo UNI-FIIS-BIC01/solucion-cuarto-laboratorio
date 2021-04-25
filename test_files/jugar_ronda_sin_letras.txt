@@ -1,0 +1,7 @@
+Letras en mano: * a c f i t x
+La palabra "fix" tiene 117 puntos. Puntaje total: 117
+Letras en mano: * a c t
+No es una palabra valida. Por favor, ingrese otra palabra.
+Letras en mano: * t
+La palabra "*t" tiene 14 puntos. Puntaje total: 131
+No te quedan mas letras. Puntaje total: 131

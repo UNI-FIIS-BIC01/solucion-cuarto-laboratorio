@@ -1,0 +1,6 @@
+Letras en mano: * a e f j r x
+La palabra "jar" tiene 90 puntos. Puntaje total: 90
+Letras en mano: * e f x
+La palabra "f*x" tiene 216 puntos. Puntaje total: 306
+Letras en mano: e
+Puntaje total: 306

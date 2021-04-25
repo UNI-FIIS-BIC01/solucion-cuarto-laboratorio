@@ -1,0 +1,20 @@
+Letras en mano: * a c i p r t
+Letras en mano: * a c i p r t
+La palabra "part" tiene 114 puntos. Puntaje total: 114
+Letras en mano: * c i
+La palabra "ic*" tiene 84 puntos. Puntaje total: 198
+No te quedan mas letras. Puntaje total: 198
+____________
+Letras en mano: * d d l o t u
+Letras en mano: * d d h o t u
+La palabra "out" tiene 27 puntos. Puntaje total: 27
+Letras en mano: * d d h
+Puntaje total: 27
+____________
+Letras en mano: * d d h o t u
+La palabra "d*d" tiene 36 puntos. Puntaje total: 36
+Letras en mano: h o t u
+La palabra "out" tiene 54 puntos. Puntaje total: 90
+Letras en mano: h
+Puntaje total: 90
+Puntaje acumulado: 288
