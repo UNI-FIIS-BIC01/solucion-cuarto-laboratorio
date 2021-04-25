@@ -63,7 +63,16 @@ def calcular_puntaje_palabra(palabra, letras_disponibles):
         letras_disponibles.
     """
 
-    return
+    palabra = palabra.lower()
+    primer_componente = 0
+    for letra in palabra:
+        if letra != "*":
+            primer_componente += PUNTAJE_POR_LETRA[letra]
+
+    tamanio_palabra = len(palabra)
+    segundo_componente = max(1, 7 * tamanio_palabra - 3 * (letras_disponibles - tamanio_palabra))
+
+    return primer_componente * segundo_componente
 
 
 def mostrar_diccionario_letras(diccionario_letras):
@@ -91,6 +100,9 @@ def repartir_letras(numero_letras):
     diccionario_letras = {}
     vocales = int(math.ceil(numero_letras / 3))
 
+    diccionario_letras['*'] = 1
+    vocales -= 1
+
     for _ in range(vocales):
         vocal = random.choice(VOCALES)
         diccionario_letras[vocal] = diccionario_letras.get(vocal, 0) + 1
@@ -112,8 +124,13 @@ def actualizar_diccionario_letras(diccionario_letras, palabra):
     :param palabra: La cadena de caracteres correspondiente a la palabra ingresada por el usuario.
     :return: Un nuevo diccionario, donde las letras de 'palabra' han sido removidas de diccionario_letras.
     """
+    palabra = palabra.lower()
+    nuevo_diccionario = dict(diccionario_letras)
+    for letra in palabra:
+        if letra in nuevo_diccionario.keys() and nuevo_diccionario[letra] > 0:
+            nuevo_diccionario[letra] = nuevo_diccionario[letra] - 1
 
-    return
+    return nuevo_diccionario
 
 
 def es_palabra_valida(palabra, diccionario_letras, lista_palabras):
@@ -129,8 +146,49 @@ def es_palabra_valida(palabra, diccionario_letras, lista_palabras):
     :param lista_palabras: Un listado de cadenas de caracteres, conteniendo las palabras permitidas en el juego.
     :return: True en caso sea una palabra valida, False en caso contrario.
     """
+    palabra = palabra.lower()
 
-    return
+    if palabra.find("*") != -1:
+        return palabra_valida_con_comodin(palabra, diccionario_letras, lista_palabras)
+
+    return palabra_valida_sin_comodin(palabra, diccionario_letras, lista_palabras)
+
+
+def palabra_valida_sin_comodin(palabra, diccionario_letras, listado_palabras):
+    en_lista = palabra in listado_palabras
+
+    if en_lista:
+        diccionario_palabra = convertir_palabra_a_diccionario(palabra)
+
+        for letra in diccionario_palabra:
+            letra_presente = letra in diccionario_letras.keys()
+            faltan_letras = letra_presente and diccionario_letras[letra] < diccionario_palabra[letra]
+            if (not letra_presente) or faltan_letras:
+                return False
+
+        return True
+
+    return False
+
+
+def palabra_valida_con_comodin(palabra, diccionario_letras, lista_palabras):
+    indice_comodin = palabra.find("*")
+
+    for vocal in VOCALES:
+        palabra_sin_comodin = palabra[:indice_comodin] + vocal + palabra[indice_comodin + 1:]
+
+        diccionario_sin_comodin = dict(diccionario_letras)
+        del (diccionario_sin_comodin["*"])
+
+        if vocal in diccionario_sin_comodin.keys():
+            diccionario_sin_comodin[vocal] = diccionario_sin_comodin[vocal] + 1
+        else:
+            diccionario_sin_comodin[vocal] = 1
+
+        if palabra_valida_sin_comodin(palabra_sin_comodin, diccionario_sin_comodin, lista_palabras):
+            return True
+
+    return False
 
 
 def contar_letras_disponibles(diccionario_letras):
@@ -142,7 +200,12 @@ def contar_letras_disponibles(diccionario_letras):
     :return: Un entero, correspondiente al numero total de letras contenidas en diccionario_letras.
     """
 
-    return
+    numero_letras = 0
+
+    for letra in diccionario_letras:
+        numero_letras += diccionario_letras[letra]
+
+    return numero_letras
 
 
 def jugar_ronda(diccionario_letras, lista_palabras):
@@ -163,7 +226,35 @@ def jugar_ronda(diccionario_letras, lista_palabras):
     :return: El puntaje total obtenido durante la ronda.
     """
 
-    return
+    puntaje_total = 0
+
+    while contar_letras_disponibles(diccionario_letras) > 0:
+        print("Letras en mano:", end=' ')
+        mostrar_diccionario_letras(diccionario_letras)
+
+        palabra_jugador = input('Ingrese una palabra, o "!!" para indicar que ha terminado: ')
+        if palabra_jugador == "!!":
+            break
+
+        if es_palabra_valida(palabra_jugador, diccionario_letras, lista_palabras):
+            letras_disponibles = contar_letras_disponibles(diccionario_letras)
+            puntaje_palabra = calcular_puntaje_palabra(palabra_jugador, letras_disponibles)
+            puntaje_total += puntaje_palabra
+
+            print(
+                'La palabra "' + palabra_jugador + '" tiene ' + str(puntaje_palabra) + ' puntos. Puntaje total: ' + str(
+                    puntaje_total))
+        else:
+            print('No es una palabra valida. Por favor, ingrese otra palabra.')
+
+        diccionario_letras = actualizar_diccionario_letras(diccionario_letras, palabra_jugador)
+
+    if contar_letras_disponibles(diccionario_letras) == 0:
+        print("No te quedan mas letras. Puntaje total: " + str(puntaje_total))
+    else:
+        print("Puntaje total: " + str(puntaje_total))
+
+    return puntaje_total
 
 
 def reemplazar_letra(diccionario_letras, letra):
@@ -177,8 +268,16 @@ def reemplazar_letra(diccionario_letras, letra):
     :return: Un nuevo diccionario, donde 'letra' ha sido reemplazada por otra letra que no estaba previamente en
         diccionario_letras.
     """
+    candidatos = VOCALES + CONSONANTES
+    for letra_en_diccionario in diccionario_letras:
+        candidatos = candidatos.replace(letra_en_diccionario, "")
 
-    return
+    nueva_letra = random.choice(candidatos)
+    nuevo_diccionario = dict(diccionario_letras)
+    nuevo_diccionario[nueva_letra] = diccionario_letras[letra]
+    del nuevo_diccionario[letra]
+
+    return nuevo_diccionario
 
 
 def iniciar(lista_palabras):
@@ -196,7 +295,37 @@ def iniciar(lista_palabras):
     :param lista_palabras: Un listado de cadenas de caracteres, conteniendo las palabras permitidas en el juego.
     :return: Un entero, representando el puntaje acumulado de todas las rondas.
     """
-    return
+
+    numero_rondas = int(input("Ingrese el numero de rondas: "))
+    reemplazo_disponible = True
+    repeticion_disponible = True
+    puntaje_total = 0
+
+    for _ in range(numero_rondas):
+
+        diccionario_letras = repartir_letras(LETRAS_INICIALES)
+        if reemplazo_disponible:
+            print("Letras en mano:", end=' ')
+            mostrar_diccionario_letras(diccionario_letras)
+            reemplazar = input("Quieres reemplazar una letra? ")
+            if reemplazar == "si":
+                letra_a_reemplazar = input("Que letra quieres reemplazar? ")
+                diccionario_letras = reemplazar_letra(diccionario_letras, letra_a_reemplazar)
+                reemplazo_disponible = False
+
+        puntaje_ronda = jugar_ronda(diccionario_letras, lista_palabras)
+        print("____________")
+        if repeticion_disponible:
+            repetir = input("Quieres repetir la ronda? ")
+            if repetir == "si":
+                nuevo_puntaje = jugar_ronda(diccionario_letras, lista_palabras)
+                puntaje_ronda = max(puntaje_ronda, nuevo_puntaje)
+                repeticion_disponible = False
+
+        puntaje_total += puntaje_ronda
+
+    print("Puntaje acumulado: " + str(puntaje_total))
+    return puntaje_total
 
 
 if __name__ == "__main__":
